@@ -37,7 +37,6 @@ import cgi
 import urllib.parse
 import re
 import tempfile
-import json
 
 logger = logging.getLogger('upnp')
 logger.setLevel(logging.DEBUG)
@@ -69,10 +68,6 @@ class upnpreq:
 		logger.debug(self.type + b" " + self.path.encode('utf-8') + b" " + httpversion)
 		for i in self.headers:
 			logger.debug(i + b":" + self.headers[i])
-
-	def getHeaders(self):
-		return self.headers
-
 
 class upnpd(connection):
 	def __init__(self, proto='udp'):
@@ -157,7 +152,7 @@ class upnpd(connection):
 
 			i = incident("dionaea.modules.python.upnp.headers")
 			i.con = self
-			i.headers = json.dumps(self.header.getHeaders())
+			i.headers = str(header)
 			i.report()
 
 			self.header.print()
@@ -200,11 +195,11 @@ class upnpd(connection):
 		self.send("%s/%s %d %s\r\n%s\r\n" % ("HTTP", self.version, code, message, upnp_response))
 
 	def handle_timeout_sustain(self):
-		logger.debug("{:s} handle_timeout_sustain".format(self))
+		logger.debug("%r handle_timeout_sustain", self)
 		return True
 
 	def handle_timeout_idle(self):
-		logger.debug("{:s} handle_timeout_idle".format(self))
+		logger.debug("%r handle_timeout_idle", self)
 		self.close()
 		return False
 
