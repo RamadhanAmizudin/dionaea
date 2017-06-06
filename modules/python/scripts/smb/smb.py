@@ -584,11 +584,11 @@ class smbd(connection):
 				oplist = [('23','ping'), ('c8','exec'), ('77','kill')]
 				for fid,command in oplist:
 					if op2 == fid:
-							i = incident("dionaea.modules.python.smb.doublepulsar.command")
-							i.con = self
-							i.command = command
-							i.report()
-        					smblog.info("DoublePulsar request opcode: %s command: %s" % (op2, command))
+						i = incident("dionaea.modules.python.smb.doublepulsar.command")
+						i.con = self
+						i.command = command
+						i.report()
+						smblog.info("DoublePulsar request opcode: %s command: %s" % (op2, command))
 				if op2 != '23' and op2 != 'c8' and op2 != '77':
 					smblog.info("unknown opcode: %s" % op2)
 
