@@ -562,8 +562,30 @@ class logsqlhandler(ihandler):
 			self.cursor.execute("""CREATE INDEX IF NOT EXISTS mqtt_subscribe_commands_%s_idx 
 			ON mqtt_subscribe_commands (mqtt_subscribe_command_%s)""" % (idx, idx))
 
+		self.cursor.execute("""CREATE TABLE IF NOT EXISTS
+			smb_doublepulsar_commands (
+				connection INTEGER PRIMARY KEY,
+				command TEXT
+				-- CONSTRAINT smb_doublepulsar_commands_connection_fkey FOREIGN KEY (connection) REFERENCES connections (connection)
+			)""")
+
+		self.cursor.execute("""CREATE TABLE IF NOT EXISTS
+			smb_doublepulsar_payloads (
+				connection INTEGER PRIMARY KEY,
+				encrypted_hash TEXT,
+				decrypted_hash TEXT
+				-- CONSTRAINT smb_doublepulsar_payloads_connection_fkey FOREIGN KEY (connection) REFERENCES connections (connection)
+			)""")
+
+		self.cursor.execute("""CREATE TABLE IF NOT EXISTS
+			upnp_request_headers (
+				connection INTEGER PRIMARY KEY,
+				headers TEXT
+				-- CONSTRAINT upnp_request_headers_connection_fkey FOREIGN KEY (connection) REFERENCES connections (connection)
+			)""")
+
 		# connection index for all 
-		for idx in ["dcerpcbinds", "dcerpcrequests", "emu_profiles", "emu_services", "offers", "downloads", "p0fs", "logins", "mssql_fingerprints", "mssql_commands","mysql_commands","sip_commands", "mqtt_fingerprints", "mqtt_publish_commands", "mqtt_subscribe_commands"]:
+		for idx in ["dcerpcbinds", "dcerpcrequests", "emu_profiles", "emu_services", "offers", "downloads", "p0fs", "logins", "mssql_fingerprints", "mssql_commands","mysql_commands","sip_commands", "mqtt_fingerprints", "mqtt_publish_commands", "mqtt_subscribe_commands", "smb_doublepulsar_payloads", "smb_doublepulsar_commands", "upnp_request_headers"]:
 			self.cursor.execute("""CREATE INDEX IF NOT EXISTS %s_connection_idx	ON %s (connection)""" % (idx, idx))
 
 
@@ -1021,6 +1043,30 @@ class logsqlhandler(ihandler):
 			attackid = self.attacks[con][1]
 			self.cursor.execute("INSERT INTO mqtt_subscribe_commands (connection, mqtt_subscribe_command_messageid, mqtt_subscribe_command_topic) VALUES (?,?,?)", 
 				(attackid, icd.subscribemessageid, icd.subscribetopic))
+			self.dbh.commit()
+
+	def handle_incident_dionaea_modules_python_upnp_headers(self, icd):
+		con = icd.con
+		if con in self.attacks:
+			attackid = self.attacks[con][1]
+			self.cursor.execute("INSERT INTO upnp_request_headers (connection, headers) VALUES (?,?)", 
+				(attackid, icd.headers))
+			self.dbh.commit()
+
+	def handle_incident_dionaea_modules_python_smb_doublepulsar_command(self, icd):
+		con = icd.con
+		if con in self.attacks:
+			attackid = self.attacks[con][1]
+			self.cursor.execute("INSERT INTO smb_doublepulsar_commands (connection, command) VALUES (?,?)", 
+				(attackid, icd.command))
+			self.dbh.commit()
+
+	def handle_incident_dionaea_modules_python_smb_doublepulsar_payload(self, icd):
+		con = icd.con
+		if con in self.attacks:
+			attackid = self.attacks[con][1]
+			self.cursor.execute("INSERT INTO smb_doublepulsar_payloads (connection, encrypted_hash, decrypted_hash) VALUES (?,?,?)", 
+				(attackid, icd.encrypted_hash, icd.decrypted_hash))
 			self.dbh.commit()
 
 
