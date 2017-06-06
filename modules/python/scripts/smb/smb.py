@@ -628,6 +628,7 @@ class smbd(connection):
 
 					# save the captured payload/gift/evil/buddy to disk
 					smblog.info('DoublePulsar payload - MD5 final: %s. Save to disk' %(hash_xor_output_mz.hexdigest()))
+					
 					i = incident("dionaea.modules.python.smb.doublepulsar.payload")
 					i.con = self
 					i.encrypted_hash = hash_buf2.hexdigest()

@@ -37,6 +37,7 @@ import cgi
 import urllib.parse
 import re
 import tempfile
+import json
 
 logger = logging.getLogger('upnp')
 logger.setLevel(logging.DEBUG)
@@ -156,7 +157,7 @@ class upnpd(connection):
 
 			i = incident("dionaea.modules.python.upnp.headers")
 			i.con = self
-			i.headers = self.header.getHeaders()
+			i.headers = json.dumps(self.header.getHeaders())
 			i.report()
 
 			self.header.print()
