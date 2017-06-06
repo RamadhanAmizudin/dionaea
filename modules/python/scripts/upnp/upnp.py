@@ -69,6 +69,9 @@ class upnpreq:
 		for i in self.headers:
 			logger.debug(i + b":" + self.headers[i])
 
+	def getHeaders(self):
+		return self.headers
+
 
 class upnpd(connection):
 	def __init__(self, proto='udp'):
@@ -120,7 +123,7 @@ class upnpd(connection):
 		self.rwchunksize = parent.rwchunksize
 
 	def handle_established(self):
-		logger.debug("{:s} handle_established".format(self))
+		logger.debug("%r handle_established", self)
 
 		self.timeouts.idle = 10
 		self.timeouts.sustain = 120
@@ -150,6 +153,11 @@ class upnpd(connection):
 			header = data[0:eoh]
 			data = data[soc:]
 			self.header = upnpreq(header)
+
+			i = incident("dionaea.modules.python.upnp.headers")
+			i.con = self
+			i.headers = self.header.getHeaders()
+			i.report()
 
 			self.header.print()
 
