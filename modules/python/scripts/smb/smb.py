@@ -584,6 +584,10 @@ class smbd(connection):
 				oplist = [('23','ping'), ('c8','exec'), ('77','kill')]
 				for fid,command in oplist:
 					if op2 == fid:
+							i = incident("dionaea.modules.python.smb.doublepulsar_command")
+							i.con = self
+							i.command = command
+							i.report()
         					smblog.info("DoublePulsar request opcode: %s command: %s" % (op2, command))
 				if op2 != '23' and op2 != 'c8' and op2 != '77':
 					smblog.info("unknown opcode: %s" % op2)
@@ -624,6 +628,12 @@ class smbd(connection):
 
 					# save the captured payload/gift/evil/buddy to disk
 					smblog.info('DoublePulsar payload - MD5 final: %s. Save to disk' %(hash_xor_output_mz.hexdigest()))
+					i = incident("dionaea.modules.python.smb.doublepulsar_payload")
+					i.con = self
+					i.encrypted_hash = hash_buf2.hexdigest()
+					i.decrypted_hash = hash_xor_output_mz.hexdigest()
+					i.report()
+
 					f1 = open(dir+hash_xor_output_mz.hexdigest(),'wb')
 					f1.write(xor_output[offset:])
 					f1.close
